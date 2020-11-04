@@ -111,8 +111,9 @@ class Attention(nn.Module):
                 cogn_embs = torch.from_numpy(cogn_embs).cuda()
                 cogn_embs = self.cogn_dim(cogn_embs)
                 cogn_embs = cogn_embs.transpose(1,0)
-                cogn_embs = self.cogn_size(cogn_embs)
-                cogn_embs = cogn_embs.transpose(1,0).unsqueeze(1).view(cogn_embs.shape[0], 16, cogn_embs.shape[2])
+                cogn_embs = self.cogn_size(cogn_embs).transpose(1,0)
+                cogn_embs = cogn_embs.unsqueeze(1)
+                cogn_embs = cogn_embs.view(cogn_embs.shape[0], 16, cogn_embs.shape[2])
                 query = self.q(cogn_embs)
             else:
                 query = self.q(query)
