@@ -269,7 +269,7 @@ class SHARNN(nn.Module):
             #rnn = rnns[idx % 2]
             #rnn = rnns[idx]
             rnn = True
-            self.blocks.append(Block(embed_dim, hidden_dim, self.num_heads, dropout=dropouth, rnn=rnn, residual=False, use_attn=True if idx == num_layers - 2 else False, attn_type="cogn"))
+            self.blocks.append(Block(embed_dim, hidden_dim, self.num_heads, dropout=dropouth, rnn=rnn, residual=False, use_attn=True if idx == num_layers - 2 else False, attn_type=None))
 
         #self.pos_emb = nn.Parameter(torch.zeros(size=(self.num_max_positions, 1, embed_dim), dtype=torch.float))
         self.pos_emb = [0] * self.num_max_positions
