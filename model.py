@@ -109,11 +109,11 @@ class Attention(nn.Module):
             if self.attn_type=="cogn":
                 _, cogn_embs, _,_ = read_txt_embeddings('/data/scratch/neuro/neuro_embs/neuro.en.txt',w2v = True)
                 cogn_embs = torch.from_numpy(cogn_embs).cuda()
-                cogn_embs = self.cogn_dim(cogn_embs)
-                cogn_embs = cogn_embs.transpose(1,0)
-                cogn_embs = self.cogn_size(cogn_embs).transpose(1,0)
+                # cogn_embs = self.cogn_dim(cogn_embs)
+                # cogn_embs = cogn_embs.transpose(1,0)
+                # cogn_embs = self.cogn_size(cogn_embs).transpose(1,0)
                 cogn_embs = cogn_embs.unsqueeze(1)
-                cogn_embs = cogn_embs.expand(cogn_embs.shape[0], 16, cogn_embs.shape[2])
+                cogn_embs = cogn_embs.expand(query.shape[0], query.shape[1], query.shape[2])
                 query = self.q(cogn_embs)
             else:
                 query = self.q(query)
