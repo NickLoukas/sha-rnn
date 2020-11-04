@@ -60,6 +60,7 @@ def read_txt_embeddings(emb_path,w2v = True , full_vocab = False,max_vocab = 200
                 split = line.split()
                 assert len(split) == 2
                 emb_dim = int(split[1])
+                embs_size = int(split[0])
             else:
                 word, vect = line.rstrip().split(' ', 1)
                 if not full_vocab:
@@ -93,4 +94,4 @@ def read_txt_embeddings(emb_path,w2v = True , full_vocab = False,max_vocab = 200
     words = list(word2id.keys())
     #w2e = {w : e for w,e in zip(words,embeddings)}
 
-    return words,embeddings,emb_dim
+    return words,embeddings,emb_dim,embs_size
