@@ -107,6 +107,7 @@ class Attention(nn.Module):
             if self.attn_type=="cogn":
                 _, cogn_embs, _ = read_txt_embeddings('/data/scratch/neuro/neuro_embs/neuro.en.txt',w2v = True)
                 cogn_embs = torch.from_numpy(cogn_embs)
+                cogn_embs = cogn_embs.cuda()
                 cogn_embs = self.cogn(cogn_embs)
                 query = self.q(cogn_embs)
             else:
