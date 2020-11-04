@@ -113,7 +113,7 @@ class Attention(nn.Module):
                 cogn_embs = cogn_embs.transpose(1,0)
                 cogn_embs = self.cogn_size(cogn_embs).transpose(1,0)
                 cogn_embs = cogn_embs.unsqueeze(1)
-                cogn_embs = cogn_embs.reshape(cogn_embs.shape[0], 16, cogn_embs.shape[2])
+                cogn_embs = cogn_embs.expand(cogn_embs.shape[0], 16, cogn_embs.shape[2])
                 query = self.q(cogn_embs)
             else:
                 query = self.q(query)
