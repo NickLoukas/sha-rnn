@@ -66,9 +66,8 @@ class Attention(nn.Module):
         self.gelu = GELU()
         if attn_type == "cogn":
             _, _, cogn_size = read_txt_embeddings('/data/scratch/neuro/neuro_embs/neuro.en.txt',w2v = True)
-            self.q = nn.Linear(cogn_size, nhid) if q else None
-        else:
-            self.q = nn.Linear(nhid, nhid) if q else None
+            self.cogn = nn.Linear(cogn_size, nhid)
+        self.q = nn.Linear(nhid, nhid) if q else None
         self.qln = LayerNorm(nhid, eps=1e-12)
         self.k = nn.Linear(nhid, nhid) if k else None
         self.v = nn.Linear(nhid, nhid) if v else None
@@ -107,6 +106,7 @@ class Attention(nn.Module):
         if self.q:
             if self.attn_type=="cogn":
                 _, cogn_embs, _ = read_txt_embeddings('/data/scratch/neuro/neuro_embs/neuro.en.txt',w2v = True)
+                cogn_embs = self.cogn(cogn_embs)
                 query = self.q(cogn_embs)
             else:
                 query = self.q(query)
