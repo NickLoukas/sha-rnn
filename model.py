@@ -104,7 +104,7 @@ class Attention(nn.Module):
         #qs, ks, vs = self.qs, self.ks, self.vs
         #q = qs * query
         #if self.q: query = self.q(query)
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         if self.q:
             if self.attn_type=="cogn":
                 _, cogn_embs, _,_ = read_txt_embeddings('/data/scratch/neuro/neuro_embs/neuro.en.txt',w2v = True)
@@ -113,7 +113,7 @@ class Attention(nn.Module):
                 cogn_embs = cogn_embs.transpose(1,0)
                 cogn_embs = self.cogn_size(cogn_embs).transpose(1,0)
                 cogn_embs = cogn_embs.unsqueeze(1)
-                cogn_embs = cogn_embs.view(cogn_embs.shape[0], 16, cogn_embs.shape[2])
+                cogn_embs = cogn_embs.expand(cogn_embs.shape[0], 16, cogn_embs.shape[2])
                 query = self.q(cogn_embs)
             else:
                 query = self.q(query)
