@@ -137,6 +137,7 @@ class Attention(nn.Module):
         assert nhid == self.nhid
         key_len = k.size(1)
         ###
+        import pdb; pdb.set_trace()
         dim = self.nhid // self.heads
         q = q.view(batch_size, query_len, self.heads, dim).transpose(1, 2)
         k, v = [vec.view(batch_size, key_len, self.heads, dim).transpose(1, 2) for vec in [k, v]]
