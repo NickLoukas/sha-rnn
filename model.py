@@ -12,6 +12,7 @@ from apex.normalization.fused_layer_norm import FusedLayerNorm as LayerNorm
 
 import torch.utils
 import torch.utils.checkpoint
+from utils import *
 tcheckpoint = torch.utils.checkpoint.checkpoint
 #checkpoint = torch.utils.checkpoint.checkpoint
 checkpoint = lambda f, *args, **kwargs: f(*args, **kwargs)
@@ -51,7 +52,7 @@ class Overparam(nn.Module):
         return torch.sigmoid(f) * torch.tanh(c)
 
 class Attention(nn.Module):
-    def __init__(self, nhid, q=True, k=False, v=False, r=False, heads=1, dropout=None):
+    def __init__(self, nhid, q=True, k=False, v=False, r=False, heads=1, dropout=None, attn_type=None):
         super().__init__()
         self.qs = nn.Parameter(torch.zeros(size=(1, 1, nhid), dtype=torch.float))
         self.ks = nn.Parameter(torch.zeros(size=(1, 1, nhid), dtype=torch.float))
@@ -59,10 +60,15 @@ class Attention(nn.Module):
         self.qkvs = nn.Parameter(torch.zeros(size=(1, 3, nhid), dtype=torch.float))
         self.heads = heads
         self.nhid = nhid
+        self.attn_type = attn_type
         assert nhid % self.heads == 0, 'Heads must divide vector evenly'
         self.drop = nn.Dropout(dropout) if dropout else None
         self.gelu = GELU()
-        self.q = nn.Linear(nhid, nhid) if q else None
+        if attn_type == "cogn":
+            _, _, cogn_size = read_txt_embeddings('/data/scratch/neuro/neuro_embs/neuro.en.txt',w2v = True)
+            self.q = nn.Linear(cogn_size, nhid) if q else None
+        else:
+            self.q = nn.Linear(nhid, nhid) if q else None
         self.qln = LayerNorm(nhid, eps=1e-12)
         self.k = nn.Linear(nhid, nhid) if k else None
         self.v = nn.Linear(nhid, nhid) if v else None
@@ -99,7 +105,11 @@ class Attention(nn.Module):
         #q = qs * query
         #if self.q: query = self.q(query)
         if self.q:
-            query = self.q(query)
+            if self.attn_type=="cogn":
+                _, cogn_embs, _ = read_txt_embeddings('/data/scratch/neuro/neuro_embs/neuro.en.txt',w2v = True)
+                query = self.q(cogn_embs)
+            else:
+                query = self.q(query)
             query = self.qln(query.float())
         if self.k: key = self.k(key)
         if self.v: value = self.v(value)
@@ -156,12 +166,12 @@ class PyTorchAttention(nn.Module):
         return self.mha(q, k, v, attn_mask=attn_mask)
 
 class Block(nn.Module):
-    def __init__(self, embed_dim, hidden_dim, heads=1, dropout=None, rnn=False, residual=True, use_attn=True):
+    def __init__(self, embed_dim, hidden_dim, heads=1, dropout=None, rnn=False, residual=True, use_attn=True, attn_type=None):
         super().__init__()
         #self.attn = PyTorchAttention(embed_dim, heads=heads, dropout=dropout)
         self.attn = None
         if use_attn:
-            self.attn = Attention(embed_dim, heads=heads, r=False, dropout=dropout)
+            self.attn = Attention(embed_dim, heads=heads, r=False, dropout=dropout, attn_type=attn_type)
         self.ff = Boom(embed_dim, hidden_dim, dropout=dropout, shortcut=True)
         self.lnstart = LayerNorm(embed_dim, eps=1e-12)
         self.lnmid = LayerNorm(embed_dim, eps=1e-12)
@@ -252,7 +262,7 @@ class SHARNN(nn.Module):
             #rnn = rnns[idx % 2]
             #rnn = rnns[idx]
             rnn = True
-            self.blocks.append(Block(embed_dim, hidden_dim, self.num_heads, dropout=dropouth, rnn=rnn, residual=False, use_attn=True if idx == num_layers - 2 else False))
+            self.blocks.append(Block(embed_dim, hidden_dim, self.num_heads, dropout=dropouth, rnn=rnn, residual=False, use_attn=True if idx == num_layers - 2 else False, attn_type="cogn"))
 
         #self.pos_emb = nn.Parameter(torch.zeros(size=(self.num_max_positions, 1, embed_dim), dtype=torch.float))
         self.pos_emb = [0] * self.num_max_positions
