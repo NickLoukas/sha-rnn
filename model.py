@@ -103,7 +103,7 @@ class Attention(nn.Module):
         #qs, ks, vs = self.qs, self.ks, self.vs
         #q = qs * query
         #if self.q: query = self.q(query)
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         if self.q:
             if self.attn_type=="cogn":
                 _, cogn_embs, _,_ = read_txt_embeddings('/data/scratch/neuro/neuro_embs/neuro.en.txt',w2v = True)
