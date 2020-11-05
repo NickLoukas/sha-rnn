@@ -111,7 +111,10 @@ class Attention(nn.Module):
                 cogn_embs = cogn_embs.transpose(1,0)
                 cogn_embs = self.cogn(cogn_embs)
                 cogn_embs = cogn_embs.unsqueeze(1)
-                target = torch.zeros(query.shape[0], query.shape[1], query.shape[2]).cuda()
+                if query.shape[0] > cogn_embs.shape[0]:
+                    target = torch.zeros(query.shape[0], query.shape[1], query.shape[2]).cuda()
+                else:
+                    target = torch.zeros(cogn_embs.shape[0], query.shape[1], query.shape[2]).cuda()
                 target[:cogn_embs.shape[0], :cogn_embs.shape[1], :cogn_embs.shape[2]] = cogn_embs
                 query = self.q(target)
             else:
