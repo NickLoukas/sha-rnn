@@ -217,6 +217,7 @@ def train(epoch=0):
     batch, i = 0, 0
     loss_every_n_batches = args.accumulate
     losses = []
+    import pdb; pdb.set_trace()
     while i < train_data.size(0) - 1 - 1:
         # Warmup
         for param_group in optimizer.param_groups:
