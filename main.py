@@ -299,7 +299,6 @@ def train(epoch=0):
             #print(losses)
             #loss.backward()
             with amp.scale_loss(loss, optimizer) as scaled_loss:
-                import pdb; pdb.set_trace()
                 scaled_loss.backward()
 
             # `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs.
@@ -374,9 +373,10 @@ try:
     from apex import amp
     model, optimizer = amp.initialize(model, optimizer, opt_level='O1')
     #model, optimizer = amp.initialize(model, optimizer, opt_level='O2')
-
+    import pdb; pdb.set_trace()
     for epoch in range(1, args.epochs+1):
         epoch_start_time = time.time()
+        
         train(epoch - 1)
         if 't0' in optimizer.param_groups[0]:
             tmp = {}
