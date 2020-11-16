@@ -217,7 +217,6 @@ def train(epoch=0):
     batch, i = 0, 0
     loss_every_n_batches = args.accumulate
     losses = []
-    import pdb; pdb.set_trace()
     while i < train_data.size(0) - 1 - 1:
         # Warmup
         for param_group in optimizer.param_groups:
@@ -300,6 +299,7 @@ def train(epoch=0):
             #print(losses)
             #loss.backward()
             with amp.scale_loss(loss, optimizer) as scaled_loss:
+                import pdb; pdb.set_trace()
                 scaled_loss.backward()
 
             # `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs.
