@@ -261,7 +261,7 @@ def train(epoch=0):
                 # Replace the weight to be used and scale it up
                 b.rnn.weight_hh_l0.data = wd / (1 - args.wdrop)
                 b.rnn.flatten_parameters()
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         #output, hidden, rnn_hs, dropped_rnn_hs = model(data, hidden, return_h=True)
         #output, hidden, mems, attn_outs, _ = model(data, hidden, return_h=True, mems=mems)
         output, hidden, mems, attn_outs, _ = model(data, hidden, return_h=True, mems=mems)
