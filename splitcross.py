@@ -108,7 +108,7 @@ class SplitCrossEntropyLoss(nn.Module):
             for idx in sorted(self.stats):
                 print('{}: {}'.format(idx, int(np.mean(self.stats[idx]))), end=', ')
             print()
-
+        import pdb; pdb.set_trace()
         total_loss = None
         if len(hiddens.size()) > 2: hiddens = hiddens.view(-1, hiddens.size(2))
 
