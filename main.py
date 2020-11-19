@@ -156,19 +156,21 @@ if args.resume and args.epochs > 0:
     #        if type(rnn) == WeightDrop: rnn.dropout = args.wdrop
     #        elif rnn.zoneout > 0: rnn.zoneout = args.wdrop
 ###
-if not criterion:
-    splits = []
-    if ntokens > 500000:
-        # One Billion
-        # This produces fairly even matrix mults for the buckets:
-        # 0: 11723136, 1: 10854630, 2: 11270961, 3: 11219422
-        splits = [4200, 35000, 180000]
-    elif ntokens > 75000:
-        # WikiText-103
-        splits = [2800, 20000, 76000]
-    print('Using', splits)
-    criterion = SplitCrossEntropyLoss(args.emsize, splits=splits, verbose=False)
+# if not criterion:
+#     splits = []
+#     if ntokens > 500000:
+#         # One Billion
+#         # This produces fairly even matrix mults for the buckets:
+#         # 0: 11723136, 1: 10854630, 2: 11270961, 3: 11219422
+#         splits = [4200, 35000, 180000]
+#     elif ntokens > 75000:
+#         # WikiText-103
+#         splits = [2800, 20000, 76000]
+#     print('Using', splits)
+#     criterion = SplitCrossEntropyLoss(args.emsize, splits=splits, verbose=False)
 ###
+if not criterion:
+    criterion = nn.CrossEntropyLoss()
 if args.cuda:
     model = model.cuda()
     criterion = criterion.cuda()
@@ -178,7 +180,7 @@ if False: # or args.jit:
     model.lmr = torch.jit.trace(model.lmr, (torch.rand([args.bptt, args.batch_size, args.emsize]).cuda(), torch.rand([1, args.batch_size, args.emsize]).cuda()))
 #model = torch.jit.trace_module(model, torch.zeros((args.bptt, args.batch_size), dtype=torch.long))
 ###
-params = list(model.parameters()) + list(criterion.parameters())
+params = list(model.parameters()) #+ list(criterion.parameters())
 total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
 print('Args:', args)
 print('Model total parameters:', total_params)
@@ -200,7 +202,7 @@ def evaluate(data_source, batch_size=10):
             data, targets = get_batch(data_source, i, args, evaluation=True)
             #output, hidden = model(data, hidden)
             output, hidden, mems = model(data, hidden, mems=mems, return_h=False)
-            total_loss += len(data) * criterion(model.decoder.weight, model.decoder.bias, output, targets.view(-1)).data
+            total_loss += len(data) * criterion(output, targets.view(-1)).data
             if hidden is not None:
                 hidden = repackage_hidden(hidden)
     return total_loss.item() / len(data_source)
@@ -265,7 +267,7 @@ def train(epoch=0):
         #output, hidden, rnn_hs, dropped_rnn_hs = model(data, hidden, return_h=True)
         #output, hidden, mems, attn_outs, _ = model(data, hidden, return_h=True, mems=mems)
         output, hidden, mems, attn_outs, _ = model(data, hidden, return_h=True, mems=mems)
-        raw_loss = criterion(model.decoder.weight, model.decoder.bias, output, targets.view(-1))
+        raw_loss = criterion(output, targets.view(-1))
 
         losses.append(raw_loss)
 
@@ -431,7 +433,7 @@ except KeyboardInterrupt:
 # Load the best saved model.
 model_load(args.save)
 
-params = list(model.parameters()) + list(criterion.parameters())
+params = list(model.parameters()) #+ list(criterion.parameters())
 total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in params if x.size())
 print('Model total parameters:', total_params)
 
