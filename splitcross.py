@@ -108,7 +108,6 @@ class SplitCrossEntropyLoss(nn.Module):
             for idx in sorted(self.stats):
                 print('{}: {}'.format(idx, int(np.mean(self.stats[idx]))), end=', ')
             print()
-        import pdb; pdb.set_trace()
         total_loss = None
         if len(hiddens.size()) > 2: hiddens = hiddens.view(-1, hiddens.size(2))
 
@@ -157,15 +156,15 @@ class SplitCrossEntropyLoss(nn.Module):
 
                 # Calculate the softmax for the words in the tombstone
                 tail_res = self.logprob(weight, bias, split_hiddens[idx], splits=[idx], softmaxed_head_res=softmaxed_head_res)
-
+                import pdb; pdb.set_trace()
                 # Then we calculate p(tombstone) * p(word in tombstone)
                 # Adding is equivalent to multiplication in log space
-                head_entropy = softmaxed_head_res[:, -idx]
+                # head_entropy = softmaxed_head_res[:, -idx]
                 # All indices are shifted - if the first split handles [0,...,499] then the 500th in the second split will be 0 indexed
                 indices = (split_targets[idx] - self.splits[idx]).view(-1, 1)
                 # Warning: if you don't squeeze, you get an N x 1 return, which acts oddly with broadcasting
-                tail_entropy = torch.gather(torch.nn.functional.log_softmax(tail_res, dim=-1), dim=1, index=indices).squeeze()
-                entropy = -(head_entropy + tail_entropy)
+                tail_entropy = torch.gather(tail_res, dim=1, index=indices).squeeze()
+                entropy = -(tail_entropy)
             ###
             running_offset += len(split_hiddens[idx])
             total_loss = entropy.float().sum() if total_loss is None else total_loss + entropy.float().sum()
