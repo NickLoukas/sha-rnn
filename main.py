@@ -200,7 +200,7 @@ def evaluate(data_source, batch_size=10):
             data, targets = get_batch(data_source, i, args, evaluation=True)
             #output, hidden = model(data, hidden)
             output, hidden, mems = model(data, hidden, mems=mems, return_h=False)
-            total_loss += len(data) * criterion(model.decoder.weight, model.decoder.bias, output, targets.view(len(output))).data
+            total_loss += len(data) * criterion(model.decoder.weight, model.decoder.bias, output, targets.view(-1)).data
             if hidden is not None:
                 hidden = repackage_hidden(hidden)
     return total_loss.item() / len(data_source)
@@ -265,7 +265,7 @@ def train(epoch=0):
         #output, hidden, rnn_hs, dropped_rnn_hs = model(data, hidden, return_h=True)
         #output, hidden, mems, attn_outs, _ = model(data, hidden, return_h=True, mems=mems)
         output, hidden, mems, attn_outs, _ = model(data, hidden, return_h=True, mems=mems)
-        raw_loss = criterion(model.decoder.weight, model.decoder.bias, output, targets.view(len(output)))
+        raw_loss = criterion(model.decoder.weight, model.decoder.bias, output, targets.view(-1))
 
         losses.append(raw_loss)
 
