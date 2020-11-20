@@ -248,7 +248,7 @@ def train(epoch=0):
         # Starting each batch, we detach the hidden state from how it was previously produced.
         # If we didn't, the model would try backpropagating all the way to start of the dataset.
         #optimizer.zero_grad()
-
+        import pdb; pdb.set_trace()
         if args.wdrop:
             rnn_hh_weights = []
             rnn_hh_masks = []
@@ -296,7 +296,7 @@ def train(epoch=0):
             # We want the vectors to be dissimilar - if they're one they're similar - so let's flip it
             losses.append(-attn_loss)
         '''
-        import pdb; pdb.set_trace()
+        
         if batch % loss_every_n_batches == 0:
             loss = functools.reduce(lambda x, y: x + y, losses)
             #print(losses)
