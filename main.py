@@ -202,7 +202,7 @@ def evaluate(data_source, batch_size=10):
             data, targets = get_batch(data_source, i, args, evaluation=True)
             #output, hidden = model(data, hidden)
             output, hidden, mems = model(data, hidden, mems=mems, return_h=False)
-            total_loss += len(data) * criterion(output.view(-1, output.size(-1)), targets.view(-1)).data
+            total_loss += len(data) * criterion(output.view(-1, output.size(-1)).to(dtype=torch.long), targets.view(-1)).data
             if hidden is not None:
                 hidden = repackage_hidden(hidden)
     return total_loss.item() / len(data_source)
@@ -248,7 +248,6 @@ def train(epoch=0):
         # Starting each batch, we detach the hidden state from how it was previously produced.
         # If we didn't, the model would try backpropagating all the way to start of the dataset.
         #optimizer.zero_grad()
-        import pdb; pdb.set_trace()
         if args.wdrop:
             rnn_hh_weights = []
             rnn_hh_masks = []
@@ -264,11 +263,11 @@ def train(epoch=0):
                 b.rnn.weight_hh_l0.data = wd / (1 - args.wdrop)
                 b.rnn.flatten_parameters()
 
-        
+        import pdb; pdb.set_trace()
         #output, hidden, rnn_hs, dropped_rnn_hs = model(data, hidden, return_h=True)
         #output, hidden, mems, attn_outs, _ = model(data, hidden, return_h=True, mems=mems)
         output, hidden, mems, attn_outs, _ = model(data, hidden, return_h=True, mems=mems)
-        raw_loss = criterion(output.view(-1, output.size(-1)), targets.view(-1))
+        raw_loss = criterion(output.view(-1, output.size(-1)).to(dtype=torch.long), targets.view(-1))
 
         losses.append(raw_loss)
 
