@@ -264,7 +264,7 @@ def train(epoch=0):
                 b.rnn.weight_hh_l0.data = wd / (1 - args.wdrop)
                 b.rnn.flatten_parameters()
 
-        # import pdb; pdb.set_trace()
+        
         #output, hidden, rnn_hs, dropped_rnn_hs = model(data, hidden, return_h=True)
         #output, hidden, mems, attn_outs, _ = model(data, hidden, return_h=True, mems=mems)
         output, hidden, mems, attn_outs, _ = model(data, hidden, return_h=True, mems=mems)
@@ -296,7 +296,7 @@ def train(epoch=0):
             # We want the vectors to be dissimilar - if they're one they're similar - so let's flip it
             losses.append(-attn_loss)
         '''
-
+        import pdb; pdb.set_trace()
         if batch % loss_every_n_batches == 0:
             loss = functools.reduce(lambda x, y: x + y, losses)
             #print(losses)
