@@ -267,7 +267,7 @@ def train(epoch=0):
         #output, hidden, rnn_hs, dropped_rnn_hs = model(data, hidden, return_h=True)
         #output, hidden, mems, attn_outs, _ = model(data, hidden, return_h=True, mems=mems)
         output, hidden, mems, attn_outs, _ = model(data, hidden, return_h=True, mems=mems)
-        raw_loss = criterion(output.view(-1, output.size(-1)).to(dtype=torch.long), targets.view(-1).to(dtype=torch.int64))
+        raw_loss = criterion(output.view(-1, output.size(-1)), targets.view(-1).to(dtype=torch.int64))
 
         losses.append(raw_loss)
 
